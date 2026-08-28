@@ -1,0 +1,1 @@
+import Link from 'next/link'; export default function NotFound(){return <main className="container py-32"><p className="eyebrow">404 / Missing route</p><h1 className="title mt-5">Nothing here<br/><span className="text-[var(--accent)]">but signal.</span></h1><Link href="/" className="mt-8 inline-block border grid-line px-4 py-3 font-mono text-xs">Return home →</Link></main>}

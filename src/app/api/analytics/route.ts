@@ -1,0 +1,2 @@
+import { NextResponse } from 'next/server'; import { prisma } from '@/lib/prisma';
+export async function POST(request:Request){try{const body=await request.json();const path=typeof body.path==='string'?body.path:'';if(!path||path.length>500)return NextResponse.json({ok:false},{status:400});await prisma.pageView.create({data:{path,referrer:request.headers.get('referer')?.slice(0,500)}});return NextResponse.json({ok:true})}catch{return NextResponse.json({ok:false},{status:503})}}

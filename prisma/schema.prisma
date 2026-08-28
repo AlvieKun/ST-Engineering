@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ProjectStatus {
+  IDEA
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
+}
+
+model Project {
+  id                   String        @id @default(cuid())
+  title                String
+  slug                 String        @unique
+  shortDescription     String
+  content              String        @default("")
+  status               ProjectStatus @default(IDEA)
+  publishStatus        ContentStatus @default(DRAFT)
+  featured             Boolean       @default(false)
+  categories           String[]
+  technologies         String[]
+  githubUrl            String?
+  demoUrl              String?
+  documentationUrl     String?
+  paperUrl             String?
+  huggingFaceUrl       String?
+  datasetUrl           String?
+  thumbnailUrl         String?
+  heroImageUrl         String?
+  architectureImageUrl String?
+  seoTitle             String?
+  seoDescription       String?
+  ogImageUrl           String?
+  problem              String        @default("")
+  solution             String        @default("")
+  implementation       String        @default("")
+  engineeringDecisions String       @default("")
+  benchmarkResults     String        @default("")
+  failureAnalysis     String        @default("")
+  lessonsLearned       String        @default("")
+  publishedAt          DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  metrics              ProjectMetric[]
+  posts                BlogPost[]
+  tags                 ProjectTag[]
+  views                PageView[]
+  @@index([publishStatus, featured])
+  @@index([status])
+}
+
+model ProjectMetric {
+  id          String  @id @default(cuid())
+  projectId   String
+  value       String
+  label       String
+  description String?
+  sortOrder   Int     @default(0)
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  @@index([projectId, sortOrder])
+}
+
+model BlogPost {
+  id             String        @id @default(cuid())
+  title          String
+  slug           String        @unique
+  excerpt        String
+  content        String
+  publishStatus  ContentStatus @default(DRAFT)
+  coverImageUrl  String?
+  seoTitle       String?
+  seoDescription String?
+  ogImageUrl     String?
+  projectId      String?
+  publishedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  project        Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  tags           BlogPostTag[]
+  views          PageView[]
+  @@index([publishStatus, publishedAt])
+  @@index([projectId])
+}
+
+model Tag {
+  id       String        @id @default(cuid())
+  name     String        @unique
+  slug     String        @unique
+  projects ProjectTag[]
+  posts    BlogPostTag[]
+}
+
+model ProjectTag {
+  projectId String
+  tagId     String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  @@id([projectId, tagId])
+}
+
+model BlogPostTag {
+  blogPostId String
+  tagId      String
+  blogPost   BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  @@id([blogPostId, tagId])
+}
+
+model SiteSettings {
+  id           String   @id @default("singleton")
+  resumeVisible Boolean  @default(false)
+  resumeUrl    String?
+  adminEmail   String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model PageView {
+  id        String    @id @default(cuid())
+  path      String
+  referrer  String?
+  projectId String?
+  postId    String?
+  createdAt DateTime  @default(now())
+  project   Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  post      BlogPost? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  @@index([path, createdAt])
+}
