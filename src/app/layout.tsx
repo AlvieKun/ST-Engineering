@@ -1,7 +1,6 @@
 import './globals.css';
 import Link from 'next/link';
-import { GitBranch, BriefcaseBusiness, ArrowUpRight } from 'lucide-react';
-import { getSiteSettingsData } from '@/lib/content';
+import { GitBranch, BriefcaseBusiness } from 'lucide-react';
 
 export const metadata = {
   title: 'Sarthak Tallamraju — Builder',

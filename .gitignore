@@ -1,44 +1,48 @@
-# dependencies
 node_modules/
-
-# next.js
 .next/
 out/
-
-# production
-build/
 dist/
 
-# env files
+# Environment files
 .env
 .env.local
+.env*.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# debug logs
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# misc
-.DS_Store
-*.tsbuildinfo
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# AI tool directories
+# Vercel
+.vercel/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Prisma
+prisma/*.db
+
+# Tool configs
 .agents/
 .claude/
 .cursor/
 .devin/
 .freebuff/
 
-# prisma
-.prisma/
-
-# vercel
-.vercel/
-
 # IDE
 .vscode/
 .idea/
-
