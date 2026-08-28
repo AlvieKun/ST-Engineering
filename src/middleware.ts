@@ -26,8 +26,13 @@ export async function middleware(request: NextRequest) {
     },
   );
   const { data: { user } } = await supabase.auth.getUser();
-  if (isPrivate && !path.startsWith('/admin/login') && (!user || user.id !== process.env.ADMIN_USER_ID)) {
-    return NextResponse.redirect(new URL('/admin/login', request.url));
+  if (isPrivate && !path.startsWith('/admin/login')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
+    if (process.env.ADMIN_USER_ID && user.id !== process.env.ADMIN_USER_ID) {
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
   }
   return response;
 }

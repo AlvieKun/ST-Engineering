@@ -4,6 +4,8 @@ import { getPublishedProjects, getPublishedPosts, getSiteSettingsData } from '@/
 import ProjectCard from '@/components/ProjectCard';
 import PostCard from '@/components/PostCard';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const [projects, posts, settings] = await Promise.all([
     getPublishedProjects(),

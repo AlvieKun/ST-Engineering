@@ -3,16 +3,25 @@ import { ArrowRight, FilePlus2, FolderKanban } from 'lucide-react';
 import { getAllProjects, getAllPosts, getProjectCounts, getPostCounts } from '@/lib/content';
 import AdminLogout from './AdminLogout';
 
-export default async function Admin() {
-  const [projects, posts, projectCounts, postCounts] = await Promise.all([
-    getAllProjects(),
-    getAllPosts(),
-    getProjectCounts(),
-    getPostCounts(),
-  ]);
+export const dynamic = 'force-dynamic';
 
-  const publishedProjects = projects.filter((p) => p.publishStatus === 'PUBLISHED');
-  const draftProjects = projects.filter((p) => p.publishStatus === 'DRAFT');
+export default async function Admin() {
+  let projects: any[] = [];
+  let posts: any[] = [];
+  let projectCounts = { total: 0, published: 0, drafts: 0 };
+  let postCounts = { total: 0, published: 0, drafts: 0 };
+  let dbError: string | null = null;
+
+  try {
+    [projects, posts, projectCounts, postCounts] = await Promise.all([
+      getAllProjects(),
+      getAllPosts(),
+      getProjectCounts(),
+      getPostCounts(),
+    ]);
+  } catch (err) {
+    dbError = err instanceof Error ? err.message : 'Database query failed';
+  }
 
   return (
     <main className="container py-16">
@@ -46,6 +55,12 @@ export default async function Admin() {
         </div>
       </div>
 
+      {dbError && (
+        <div className="my-6 border-l-2 border-[var(--accent)] bg-[var(--panel)] p-4 text-sm text-[var(--accent)]">
+          Database error: {dbError}. Ensure DATABASE_URL is set in Vercel environment variables.
+        </div>
+      )}
+
       <div className="grid gap-3 py-10 md:grid-cols-4">
         {[
           ['Projects', projectCounts.total],
@@ -73,7 +88,7 @@ export default async function Admin() {
           ))}
           {projects.length === 0 && (
             <div className="border-t grid-line py-4 text-sm text-[var(--muted)]">
-              No projects yet.
+              {dbError ? 'Unable to load projects.' : 'No projects yet.'}
             </div>
           )}
         </AdminList>
@@ -90,7 +105,7 @@ export default async function Admin() {
           ))}
           {posts.length === 0 && (
             <div className="border-t grid-line py-4 text-sm text-[var(--muted)]">
-              No posts yet.
+              {dbError ? 'Unable to load posts.' : 'No posts yet.'}
             </div>
           )}
         </AdminList>

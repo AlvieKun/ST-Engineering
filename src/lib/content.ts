@@ -170,29 +170,21 @@ export async function getRelatedPosts(projectId: string): Promise<Post[]> {
   }
 }
 
-// Admin functions - return raw database rows
+// Admin functions - return raw database rows (throw on error so dashboard can display it)
 export async function getAllProjects() {
-  if (!process.env.DATABASE_URL) return [];
-  try {
-    return await prisma.project.findMany({
-      include: { metrics: true, tags: { include: { tag: true } } },
-      orderBy: { createdAt: 'desc' },
-    });
-  } catch {
-    return [];
-  }
+  if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not configured');
+  return await prisma.project.findMany({
+    include: { metrics: true, tags: { include: { tag: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
 }
 
 export async function getAllPosts() {
-  if (!process.env.DATABASE_URL) return [];
-  try {
-    return await prisma.blogPost.findMany({
-      include: { tags: { include: { tag: true } }, project: true },
-      orderBy: { createdAt: 'desc' },
-    });
-  } catch {
-    return [];
-  }
+  if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not configured');
+  return await prisma.blogPost.findMany({
+    include: { tags: { include: { tag: true } }, project: true },
+    orderBy: { createdAt: 'desc' },
+  });
 }
 
 export async function getProjectById(id: string) {
@@ -250,29 +242,21 @@ export async function getSiteSettingsData(): Promise<SiteSettings> {
 }
 
 export async function getProjectCounts() {
-  if (!process.env.DATABASE_URL) return { total: 0, published: 0, drafts: 0 };
-  try {
-    const [total, published, drafts] = await Promise.all([
-      prisma.project.count(),
-      prisma.project.count({ where: { publishStatus: 'PUBLISHED' } }),
-      prisma.project.count({ where: { publishStatus: 'DRAFT' } }),
-    ]);
-    return { total, published, drafts };
-  } catch {
-    return { total: 0, published: 0, drafts: 0 };
-  }
+  if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not configured');
+  const [total, published, drafts] = await Promise.all([
+    prisma.project.count(),
+    prisma.project.count({ where: { publishStatus: 'PUBLISHED' } }),
+    prisma.project.count({ where: { publishStatus: 'DRAFT' } }),
+  ]);
+  return { total, published, drafts };
 }
 
 export async function getPostCounts() {
-  if (!process.env.DATABASE_URL) return { total: 0, published: 0, drafts: 0 };
-  try {
-    const [total, published, drafts] = await Promise.all([
-      prisma.blogPost.count(),
-      prisma.blogPost.count({ where: { publishStatus: 'PUBLISHED' } }),
-      prisma.blogPost.count({ where: { publishStatus: 'DRAFT' } }),
-    ]);
-    return { total, published, drafts };
-  } catch {
-    return { total: 0, published: 0, drafts: 0 };
-  }
+  if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not configured');
+  const [total, published, drafts] = await Promise.all([
+    prisma.blogPost.count(),
+    prisma.blogPost.count({ where: { publishStatus: 'PUBLISHED' } }),
+    prisma.blogPost.count({ where: { publishStatus: 'DRAFT' } }),
+  ]);
+  return { total, published, drafts };
 }
