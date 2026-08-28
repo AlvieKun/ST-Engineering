@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
-    if (process.env.ADMIN_USER_ID && user.id !== process.env.ADMIN_USER_ID) {
+    if (!process.env.ADMIN_USER_ID || user.id !== process.env.ADMIN_USER_ID) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
