@@ -79,7 +79,7 @@ async function sendEmailNotification(input: ContactInput) {
 
   await resend.emails.send({
     from: 'Portfolio Contact <onboarding@resend.dev>',
-    to: 'sarthak_tallamraju@mymail.sutd.edu.sg',
+    to: 'sarthaktallamraju@gmail.com',
     subject: `[Contact] ${input.subject}`,
     text: `New message from ${input.name} (${input.email})\n\nSubject: ${input.subject}\n\n${input.message}\n\n---\nSubmitted: ${timestamp} (SGT)`,
     replyTo: input.email,
