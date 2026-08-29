@@ -45,11 +45,13 @@ export default function Login() {
         return;
       }
 
-      // Client-side admin check (optional — middleware is the real gate)
+      // Client-side admin check (middleware is the real gate)
       const adminId = process.env.NEXT_PUBLIC_ADMIN_USER_ID;
       if (adminId && data.user.id !== adminId) {
         await client.auth.signOut();
-        setError('This account is not authorized for the admin panel.');
+        setError(
+          `This account (${data.user.email}) is not authorized. Use the admin account instead.`
+        );
         return;
       }
 
