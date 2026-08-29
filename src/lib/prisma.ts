@@ -7,14 +7,23 @@ function getDatabaseUrl(): string {
   if (!url) throw new Error('DATABASE_URL is not set');
 
   // Append PgBouncer-friendly connection pool parameters if not already present.
-  // pgbouncer=true: Disable prepared statements (required by PgBouncer transaction mode).
-  // connection_limit=2: Keep pool tiny — each Vercel serverless instance gets its
-  //   own PrismaClient, so we must not exhaust PgBouncer's per-project limit.
-  // pool_timeout=15: Allow more time to acquire a connection during cold starts.
+  //
+  // pgbouncer=true:
+  //   Disable prepared statements (required by PgBouncer transaction mode).
+  //
+  // connection_limit=1:
+  //   Each Vercel serverless function instance creates its own PrismaClient.
+  //   With multiple concurrent instances, even connection_limit=2 causes pool
+  //   exhaustion because each instance opens 2 connections to PgBouncer.
+  //   Setting it to 1 minimizes the total connection footprint across all instances.
+  //
+  // pool_timeout=30:
+  //   Give queries more time to acquire a connection, especially during cold starts
+  //   when the Prisma engine needs to establish a new connection.
   const params = [
     ['pgbouncer', 'true'],
-    ['connection_limit', '2'],
-    ['pool_timeout', '15'],
+    ['connection_limit', '1'],
+    ['pool_timeout', '30'],
   ];
 
   for (const [key, value] of params) {
@@ -27,7 +36,10 @@ function getDatabaseUrl(): string {
   return url;
 }
 
-// PrismaClient with connection pool tuned for Vercel serverless + Supabase PgBouncer.
+// Ensure only ONE PrismaClient is created per serverless function instance.
+// In development, reuse across hot reloads. In production (Vercel), the
+// globalThis singleton prevents creating a new client on every request
+// within the same function instance.
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
@@ -39,6 +51,4 @@ export const prisma =
     },
   });
 
-// In development, reuse the client across hot reloads to avoid
-// exhausting the connection pool on file changes.
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
