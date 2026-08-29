@@ -39,11 +39,14 @@ export default async function AdminBlog() {
               {p.project?.title || '—'}
             </span>
             <span className="font-mono text-xs">
-              {p.publishStatus === 'PUBLISHED'
-                ? p.publishedAt
-                  ? new Date(p.publishedAt).toLocaleDateString()
-                  : 'Published'
-                : p.publishStatus}
+              {p.publishStatus === 'SCHEDULED' && (p as any).scheduledAt
+                ? `Scheduled · ${new Date((p as any).scheduledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} ${new Date((p as any).scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
+                : p.publishStatus === 'PUBLISHED'
+                  ? p.publishedAt
+                    ? `Published · ${new Date(p.publishedAt).toLocaleDateString()}`
+                    : 'Published'
+                  : p.publishStatus
+              }
             </span>
             <span className="flex gap-3">
               <Link href={`/blog/${p.slug}`} aria-label="Preview">

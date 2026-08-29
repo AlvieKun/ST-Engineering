@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { ArrowRight, FilePlus2, FolderKanban } from 'lucide-react';
+import { ArrowRight, FilePlus2, FolderKanban, Mail } from 'lucide-react';
 import { getAllProjects, getAllPosts, getProjectCounts, getPostCounts } from '@/lib/content';
+import { prisma } from '@/lib/prisma';
 import AdminLogout from './AdminLogout';
 
 export const dynamic = 'force-dynamic';
@@ -8,9 +9,10 @@ export const dynamic = 'force-dynamic';
 export default async function Admin() {
   let projects: any[] = [];
   let posts: any[] = [];
-  let projectCounts = { total: 0, published: 0, drafts: 0 };
-  let postCounts = { total: 0, published: 0, drafts: 0 };
+  let projectCounts = { total: 0, published: 0, scheduled: 0, drafts: 0 };
+  let postCounts = { total: 0, published: 0, scheduled: 0, drafts: 0 };
   let dbError: string | null = null;
+  let unreadMessages = 0;
 
   try {
     [projects, posts, projectCounts, postCounts] = await Promise.all([
@@ -19,6 +21,9 @@ export default async function Admin() {
       getProjectCounts(),
       getPostCounts(),
     ]);
+    if (process.env.DATABASE_URL) {
+      unreadMessages = await prisma.contactMessage.count({ where: { read: false } });
+    }
   } catch (err) {
     dbError = err instanceof Error ? err.message : 'Database query failed';
   }
@@ -33,6 +38,18 @@ export default async function Admin() {
         </div>
         <div className="flex items-center gap-5">
           <AdminLogout />
+          <Link
+            href="/admin/messages"
+            className="flex items-center gap-1 font-mono text-xs text-[var(--muted)] hover:text-[var(--accent)]"
+          >
+            <Mail size={13} />
+            Messages
+            {unreadMessages > 0 && (
+              <span className="ml-1 rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-[10px] text-white">
+                {unreadMessages}
+              </span>
+            )}
+          </Link>
           <Link
             href="/admin/settings"
             className="font-mono text-xs text-[var(--muted)] hover:text-[var(--accent)]"
@@ -65,8 +82,8 @@ export default async function Admin() {
         {[
           ['Projects', projectCounts.total],
           ['Published', projectCounts.published],
-          ['Blog posts', postCounts.total],
-          ['Drafts', projectCounts.drafts],
+          ['Scheduled', projectCounts.scheduled + postCounts.scheduled],
+          ['Drafts', projectCounts.drafts + postCounts.drafts],
         ].map(([label, value]) => (
           <div key={String(label)} className="border grid-line p-5">
             <div className="font-mono text-xs text-[var(--muted)]">{label}</div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { updatePost, deletePost } from '../../actions';
+import PublishControls from '@/components/PublishControls';
 
 type PostData = {
   id: string;
@@ -11,6 +12,7 @@ type PostData = {
   excerpt: string;
   content: string;
   publishStatus: string;
+  scheduledAt: string | null;
   projectId: string | null;
   tags: { tag: { id: string; name: string } }[];
 };
@@ -145,20 +147,10 @@ export default function EditPost({ params }: { params: Promise<{ id: string }> }
           </label>
         </div>
 
-        <label className="block">
-          <span className="mb-2 block font-mono text-xs text-[var(--muted)]">
-            Publish status
-          </span>
-          <select
-            name="publishStatus"
-            defaultValue={post.publishStatus}
-            className="w-full border grid-line bg-transparent p-3"
-          >
-            <option value="DRAFT">Draft</option>
-            <option value="PUBLISHED">Published</option>
-            <option value="ARCHIVED">Archived</option>
-          </select>
-        </label>
+        <PublishControls
+          publishStatus={post.publishStatus}
+          scheduledAt={post.scheduledAt}
+        />
 
         <label className="block">
           <span className="mb-2 block font-mono text-xs text-[var(--muted)]">

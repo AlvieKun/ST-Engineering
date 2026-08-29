@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { updateProject, deleteProject } from '../../actions';
 import MediaUpload from '@/components/MediaUpload';
+import PublishControls from '@/components/PublishControls';
 
 type ProjectData = {
   id: string;
@@ -25,6 +26,7 @@ type ProjectData = {
   thumbnailUrl: string | null;
   heroImageUrl: string | null;
   pitchDeckUrl: string | null;
+  scheduledAt: string | null;
   problem: string;
   solution: string;
   implementation: string;
@@ -174,20 +176,7 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
             </select>
           </label>
 
-          <label className="block">
-            <span className="mb-2 block font-mono text-xs text-[var(--muted)]">
-              Publish status
-            </span>
-            <select
-              name="publishStatus"
-              defaultValue={project.publishStatus}
-              className="w-full border grid-line bg-transparent p-3"
-            >
-              <option value="DRAFT">Draft</option>
-              <option value="PUBLISHED">Published</option>
-              <option value="ARCHIVED">Archived</option>
-            </select>
-          </label>
+
 
           <label className="block">
             <span className="mb-2 block font-mono text-xs text-[var(--muted)]">Category</span>
@@ -205,6 +194,11 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
             </select>
           </label>
         </div>
+
+        <PublishControls
+          publishStatus={project.publishStatus}
+          scheduledAt={project.scheduledAt}
+        />
 
         <label className="flex items-center gap-3 font-mono text-xs">
           <input

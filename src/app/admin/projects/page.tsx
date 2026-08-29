@@ -36,7 +36,14 @@ export default async function AdminProjects() {
             className="grid min-w-[650px] grid-cols-[2fr_1fr_1fr_1fr_120px] gap-4 border-b grid-line py-5 text-sm items-center"
           >
             <span className="font-bold">{p.title}</span>
-            <span className="font-mono text-xs text-[var(--muted)]">{p.publishStatus}</span>
+            <span className="font-mono text-xs text-[var(--muted)]">
+              {p.publishStatus === 'SCHEDULED' && p.scheduledAt
+                ? `Scheduled · ${new Date(p.scheduledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} ${new Date(p.scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
+                : p.publishStatus === 'PUBLISHED' && p.publishedAt
+                  ? `Published · ${new Date(p.publishedAt).toLocaleDateString()}`
+                  : p.publishStatus
+              }
+            </span>
             <span className="text-xs text-[var(--muted)]">
               {p.categories[0] || 'Uncategorized'}
             </span>

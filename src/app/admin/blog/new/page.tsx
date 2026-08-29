@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createPost } from '../../actions';
+import PublishControls from '@/components/PublishControls';
 
 type Project = { id: string; title: string };
 
@@ -29,7 +30,8 @@ export default function NewPost() {
         slug: f.get('slug'),
         excerpt: f.get('excerpt'),
         content: f.get('content'),
-        publishStatus: 'DRAFT',
+        publishStatus: f.get('publishStatus') || 'DRAFT',
+        scheduledAt: f.get('scheduledAt') || '',
         projectId: f.get('projectId') || '',
         tags: String(f.get('tags') || '')
           .split(',')
@@ -86,6 +88,8 @@ export default function NewPost() {
             </select>
           </label>
         </div>
+
+        <PublishControls publishStatus="DRAFT" scheduledAt={null} />
 
         <label className="block">
           <span className="mb-2 block font-mono text-xs text-[var(--muted)]">

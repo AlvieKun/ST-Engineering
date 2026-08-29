@@ -101,8 +101,14 @@ function mapPost(p: any): Post {
 export async function getPublishedProjects(): Promise<Project[]> {
   if (!process.env.DATABASE_URL) return fallbackProjects;
   try {
+    const now = new Date();
     const rows = await prisma.project.findMany({
-      where: { publishStatus: 'PUBLISHED' },
+      where: {
+        OR: [
+          { publishStatus: 'PUBLISHED' },
+          { publishStatus: 'SCHEDULED', scheduledAt: { lte: now } },
+        ],
+      },
       include: { metrics: true, tags: { include: { tag: true } } },
       orderBy: [{ featured: 'desc' }, { publishedAt: 'desc' }],
     });
@@ -115,8 +121,14 @@ export async function getPublishedProjects(): Promise<Project[]> {
 export async function getPublishedPosts(): Promise<Post[]> {
   if (!process.env.DATABASE_URL) return fallbackPosts;
   try {
+    const now = new Date();
     const rows = await prisma.blogPost.findMany({
-      where: { publishStatus: 'PUBLISHED' },
+      where: {
+        OR: [
+          { publishStatus: 'PUBLISHED' },
+          { publishStatus: 'SCHEDULED', scheduledAt: { lte: now } },
+        ],
+      },
       include: { tags: { include: { tag: true } } },
       orderBy: { publishedAt: 'desc' },
     });
@@ -131,8 +143,15 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
     return fallbackProjects.find((p) => p.slug === slug) || null;
   }
   try {
-    const row = await prisma.project.findUnique({
-      where: { slug },
+    const now = new Date();
+    const row = await prisma.project.findFirst({
+      where: {
+        slug,
+        OR: [
+          { publishStatus: 'PUBLISHED' },
+          { publishStatus: 'SCHEDULED', scheduledAt: { lte: now } },
+        ],
+      },
       include: { metrics: true, tags: { include: { tag: true } } },
     });
     if (!row) return null;
@@ -147,8 +166,15 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     return fallbackPosts.find((p) => p.slug === slug) || null;
   }
   try {
-    const row = await prisma.blogPost.findUnique({
-      where: { slug },
+    const now = new Date();
+    const row = await prisma.blogPost.findFirst({
+      where: {
+        slug,
+        OR: [
+          { publishStatus: 'PUBLISHED' },
+          { publishStatus: 'SCHEDULED', scheduledAt: { lte: now } },
+        ],
+      },
       include: { tags: { include: { tag: true } } },
     });
     if (!row) return null;
@@ -163,8 +189,15 @@ export async function getRelatedPosts(projectId: string): Promise<Post[]> {
     return fallbackPosts.filter((p) => p.projectId === projectId);
   }
   try {
+    const now = new Date();
     const rows = await prisma.blogPost.findMany({
-      where: { projectId, publishStatus: 'PUBLISHED' },
+      where: {
+        projectId,
+        OR: [
+          { publishStatus: 'PUBLISHED' },
+          { publishStatus: 'SCHEDULED', scheduledAt: { lte: now } },
+        ],
+      },
       include: { tags: { include: { tag: true } } },
       orderBy: { publishedAt: 'desc' },
     });
@@ -245,22 +278,40 @@ export async function getSiteSettingsData(): Promise<SiteSettings> {
   }
 }
 
-export async function getProjectCounts() {
+export async function getProjectCounts(): Promise<{ total: number; published: number; scheduled: number; drafts: number }> {
   if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not configured');
-  const [total, published, drafts] = await Promise.all([
+  const now = new Date();
+  const [total, published, scheduled, drafts] = await Promise.all([
     prisma.project.count(),
-    prisma.project.count({ where: { publishStatus: 'PUBLISHED' } }),
+    prisma.project.count({
+      where: {
+        OR: [
+          { publishStatus: 'PUBLISHED' },
+          { publishStatus: 'SCHEDULED', scheduledAt: { lte: now } },
+        ],
+      },
+    }),
+    prisma.project.count({ where: { publishStatus: 'SCHEDULED' } }),
     prisma.project.count({ where: { publishStatus: 'DRAFT' } }),
   ]);
-  return { total, published, drafts };
+  return { total, published, scheduled, drafts };
 }
 
-export async function getPostCounts() {
+export async function getPostCounts(): Promise<{ total: number; published: number; scheduled: number; drafts: number }> {
   if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not configured');
-  const [total, published, drafts] = await Promise.all([
+  const now = new Date();
+  const [total, published, scheduled, drafts] = await Promise.all([
     prisma.blogPost.count(),
-    prisma.blogPost.count({ where: { publishStatus: 'PUBLISHED' } }),
+    prisma.blogPost.count({
+      where: {
+        OR: [
+          { publishStatus: 'PUBLISHED' },
+          { publishStatus: 'SCHEDULED', scheduledAt: { lte: now } },
+        ],
+      },
+    }),
+    prisma.blogPost.count({ where: { publishStatus: 'SCHEDULED' } }),
     prisma.blogPost.count({ where: { publishStatus: 'DRAFT' } }),
   ]);
-  return { total, published, drafts };
+  return { total, published, scheduled, drafts };
 }
