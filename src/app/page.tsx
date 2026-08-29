@@ -122,10 +122,10 @@ export default async function Home() {
             <h2 className="text-3xl font-bold tracking-tight">Have a hard problem?</h2>
           </div>
           <a
-            href="mailto:sarthak.tallamraju@gmail.com"
+            href="mailto:sarthak_tallamraju@mymail.sutd.edu.sg"
             className="flex items-center gap-3 text-lg font-bold hover:text-[var(--accent)]"
           >
-            <Mail size={18} /> sarthak.tallamraju@gmail.com <ArrowRight size={16} />
+            <Mail size={18} /> sarthak_tallamraju@mymail.sutd.edu.sg <ArrowRight size={16} />
           </a>
         </div>
       </section>
