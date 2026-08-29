@@ -44,6 +44,12 @@ export default async function Home() {
               >
                 Read the journal <ArrowRight size={16} />
               </Link>
+              <Link
+                href="/contact"
+                className="flex items-center gap-3 border grid-line px-5 py-3 text-sm font-bold text-[var(--accent)]"
+              >
+                <Mail size={15} /> Get in touch
+              </Link>
             </div>
           </div>
           <div className="flex flex-col justify-end border-l grid-line pl-6 md:pl-10">
@@ -121,12 +127,12 @@ export default async function Home() {
             <p className="eyebrow mb-4">Open channel</p>
             <h2 className="text-3xl font-bold tracking-tight">Have a hard problem?</h2>
           </div>
-          <a
-            href="mailto:sarthak_tallamraju@mymail.sutd.edu.sg"
+          <Link
+            href="/contact"
             className="flex items-center gap-3 text-lg font-bold hover:text-[var(--accent)]"
           >
-            <Mail size={18} /> sarthak_tallamraju@mymail.sutd.edu.sg <ArrowRight size={16} />
-          </a>
+            Get in touch <ArrowRight size={16} />
+          </Link>
         </div>
       </section>
     </main>
