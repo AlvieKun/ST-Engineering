@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, FileText } from 'lucide-react';
 import { getProjectBySlug, getRelatedPosts } from '@/lib/content';
 
 export default async function ProjectPage({
@@ -47,27 +47,60 @@ export default async function ProjectPage({
                 <ArrowUpRight size={13} />
               </a>
             ))}
+            {p.pitchDeckUrl && (
+              <a
+                href={p.pitchDeckUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 border grid-line px-4 py-2 font-mono text-xs text-[var(--accent)]"
+              >
+                <FileText size={13} />
+                View Pitch Deck
+                <ArrowUpRight size={13} />
+              </a>
+            )}
           </div>
         </div>
         <div className="flex items-end">
-          <div className="w-full border border-[var(--ink)] bg-[var(--panel)] p-6 font-mono text-xs leading-7">
-            <span className="text-[var(--accent)]">// architecture</span>
-            <br />
-            {p.architecture.split(' → ').map((x, i, arr) => (
-              <span key={x}>
-                {x}
-                {i < arr.length - 1 && (
-                  <>
-                    <br />
-                    <span className="text-[var(--accent)]">↓</span>
-                    <br />
-                  </>
-                )}
-              </span>
-            ))}
-          </div>
+          {p.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={p.imageUrl}
+              alt={p.title}
+              className="w-full border border-[var(--ink)] object-cover"
+            />
+          ) : (
+            <div className="w-full border border-[var(--ink)] bg-[var(--panel)] p-6 font-mono text-xs leading-7">
+              <span className="text-[var(--accent)]">// architecture</span>
+              <br />
+              {p.architecture.split(' → ').map((x, i, arr) => (
+                <span key={x}>
+                  {x}
+                  {i < arr.length - 1 && (
+                    <>
+                      <br />
+                      <span className="text-[var(--accent)]">↓</span>
+                      <br />
+                    </>
+                  )}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </header>
+
+      {/* Cover image banner (if image exists, show it full-width above metrics) */}
+      {p.imageUrl && (
+        <section className="border-b grid-line py-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={p.imageUrl}
+            alt={p.title}
+            className="mx-auto max-h-[480px] w-full object-contain"
+          />
+        </section>
+      )}
 
       {p.metrics.length > 0 && (
         <section className="grid gap-12 border-b grid-line py-16 md:grid-cols-[180px_1fr]">

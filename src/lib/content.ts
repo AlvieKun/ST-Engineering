@@ -21,6 +21,8 @@ export type Project = {
   metrics: { value: string; label: string; description: string }[];
   links: Record<string, string>;
   architecture: string;
+  imageUrl: string | null;
+  pitchDeckUrl: string | null;
 };
 
 export type Post = {
@@ -76,6 +78,8 @@ function mapProject(p: any): Project {
       }).filter(([, value]) => value)
     ),
     architecture: p.architectureImageUrl || 'Architecture diagram',
+    imageUrl: p.thumbnailUrl || p.heroImageUrl || null,
+    pitchDeckUrl: p.pitchDeckUrl || null,
   };
 }
 

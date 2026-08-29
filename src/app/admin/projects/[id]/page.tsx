@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 import { updateProject, deleteProject } from '../../actions';
+import MediaUpload from '@/components/MediaUpload';
 
 type ProjectData = {
   id: string;
@@ -22,6 +22,9 @@ type ProjectData = {
   paperUrl: string;
   huggingFaceUrl: string;
   datasetUrl: string;
+  thumbnailUrl: string | null;
+  heroImageUrl: string | null;
+  pitchDeckUrl: string | null;
   problem: string;
   solution: string;
   implementation: string;
@@ -36,6 +39,8 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [pitchDeckUrl, setPitchDeckUrl] = useState<string | null>(null);
 
   useEffect(() => {
     params.then(({ id }) => {
@@ -44,7 +49,11 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
           if (!res.ok) throw new Error('Not found');
           return res.json();
         })
-        .then((data) => setProject(data.project))
+        .then((data) => {
+          setProject(data.project);
+          setImageUrl(data.project.thumbnailUrl || data.project.heroImageUrl || null);
+          setPitchDeckUrl(data.project.pitchDeckUrl || null);
+        })
         .catch(() => setProject(null))
         .finally(() => setLoading(false));
     });
@@ -90,6 +99,9 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
           .filter(Boolean),
         githubUrl: f.get('githubUrl') || '',
         demoUrl: f.get('demoUrl') || '',
+        thumbnailUrl: imageUrl || '',
+        heroImageUrl: imageUrl || '',
+        pitchDeckUrl: pitchDeckUrl || '',
         problem: f.get('problem') || '',
         solution: f.get('solution') || '',
         implementation: f.get('implementation') || '',
@@ -210,6 +222,27 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
           label="Technologies"
           defaultValue={project.technologies.join(', ')}
         />
+
+        {/* ── Project Media ── */}
+        <section className="border-t grid-line pt-8">
+          <p className="eyebrow mb-6">Project Media</p>
+          <div className="grid gap-8 md:grid-cols-2">
+            <MediaUpload
+              label="Cover Image"
+              type="image"
+              value={imageUrl}
+              onChange={setImageUrl}
+              folder={`projects/${project.id}`}
+            />
+            <MediaUpload
+              label="Pitch Deck"
+              type="deck"
+              value={pitchDeckUrl}
+              onChange={setPitchDeckUrl}
+              folder={`projects/${project.id}`}
+            />
+          </div>
+        </section>
 
         <label className="block">
           <span className="mb-2 block font-mono text-xs text-[var(--muted)]">

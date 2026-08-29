@@ -38,6 +38,7 @@ model Project {
   paperUrl             String?
   huggingFaceUrl       String?
   datasetUrl           String?
+  pitchDeckUrl         String?
   thumbnailUrl         String?
   heroImageUrl         String?
   architectureImageUrl String?
